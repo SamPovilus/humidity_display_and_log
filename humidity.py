@@ -28,13 +28,11 @@ while True:
                         ser2.write("7700".decode("hex"))
         except TypeError:
                 print("couldn't update display")
-                
-        print(line)
-        today = datetime.datetime.now()
         loopcount += 1
         if(loopcount % (20*2) == 0):
-            print(line)
-            f.write( str(today) + ","+ str(line) + "\n" )
-            print("writing")
+#            print(line)
+                today = datetime.datetime.now()
+                f.write( str(today) + ","+ str(line) + "\n" )
+#            print("writing")
 #        print(line)
 #        print(datetime.datetime.now())
