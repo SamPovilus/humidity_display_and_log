@@ -7,6 +7,7 @@ import time
 
 humidityarray = [1]
 timearray = []
+tempuraturarray = []
 with open('temp-humidity.csv') as f:
     lines = f.readlines()
 for line in lines:
@@ -18,10 +19,10 @@ for line in lines:
             timearray.append(linedateobj)
             locline = line.split(":")[-1].rstrip().translate(None,'%')
             humidityarray.append(locline)
+            tempuraturarray.append(line.split(",")[1].split(":")[1].translate(None,'F'))
         except:
             pass
-#print(humidityarray)
-
 plt.plot_date(matplotlib.dates.date2num(timearray),(humidityarray[0:-1]))
+plt.plot_date(matplotlib.dates.date2num(timearray),(tempuraturarray))
 #plt.ylabel('some numbers')
 plt.show()
