@@ -29,7 +29,7 @@ while True:
         except TypeError:
                 print("couldn't update display")
         loopcount += 1
-        if(loopcount % (20*2) == 0):
+        if(loopcount % (60*3) == 0):
 #            print(line)
                 today = datetime.datetime.now()
                 f.write( str(today) + ","+ str(line) + "\n" )
