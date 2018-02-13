@@ -7,16 +7,16 @@ import psycopg2
 def add_humidity(humidity, temp):
                 query = """                                                                            
     INSERT INTO                                                                                
-        temp_humidity                                                                          
+        humidity_display_humidity (humidity,temp,log_date)                                                                         
     VALUES                                                                                     
         (%s, %s, %s)                                                                           
     """
-                values = ("now",humidity, temp)
+                values = (humidity, temp,"now")
                 cur.execute(query, values)
                 conn.commit()
 
                 
-conn = psycopg2.connect('host=pib1 user=pi password=<redacted> dbname=temp_humidity')
+conn = psycopg2.connect('host=pib1 user=pi password=redacted dbname=humidity_django_db')
 cur = conn.cursor()
 f = open('/home/pi/temp-humidity.csv', 'a')
 ser = serial.Serial('/dev/ttyACM0',9600)
@@ -25,14 +25,13 @@ brightness_command = "7a"
 cursor_command = "79"
 decimal_command = "77"
 cursor0 = cursor_command + "00"
-ser2.write((brightness_command + "05").decode("hex"))
+ser2.write((brightness_command + "02").decode("hex"))
 loopcount = 0
 while True:
 
         line = ser.readline()
         humidity2 = line.split()[1].split(":")[1][0:-1]
         tempurature2 = line.split()[0].split(":")[1].strip()[0:-2]
-        add_humidity(humidity2,tempurature2)
         humi = line.split()[loopcount%2].split(":")[1]
         try:
                 ser2.write(("79000"+
@@ -47,10 +46,5 @@ while True:
         except TypeError:
                 print("couldn't update display")
         loopcount += 1
-        if(loopcount % (60*3) == 0):
-#            print(line)
-                today = datetime.datetime.now()
-                f.write( str(today) + ","+ str(line) + "\n" )
-#            print("writing")
-#        print(line)
-#        print(datetime.datetime.now())
+        if(loopcount % (60*4) == 0):
+                add_humidity(humidity2,tempurature2)
