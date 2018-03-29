@@ -3,20 +3,21 @@ import serial
 import datetime
 import time
 import psycopg2
+import password
 
 def add_humidity(humidity, temp):
                 query = """                                                                            
     INSERT INTO                                                                                
-        humidity_display_humidity (humidity,temp,log_date)                                                                         
+        humidity_display_humidity (humidity,temp,log_date,hostname)                                                                         
     VALUES                                                                                     
-        (%s, %s, %s)                                                                           
+        (%s, %s, %s, %s)                                                                           
     """
-                values = (humidity, temp,"now")
+                values = (humidity, temp,"now","piw2")
                 cur.execute(query, values)
                 conn.commit()
 
                 
-conn = psycopg2.connect('host=pib1 user=pi password=redacted dbname=humidity_django_db')
+conn = psycopg2.connect('host=pib1 user=pi password=' + password.get_password() + ' dbname=humidity_django_db')
 cur = conn.cursor()
 f = open('/home/pi/temp-humidity.csv', 'a')
 ser = serial.Serial('/dev/ttyACM0',9600)
@@ -46,5 +47,5 @@ while True:
         except TypeError:
                 print("couldn't update display")
         loopcount += 1
-        if(loopcount % (60*4) == 0):
+        if(loopcount % (60) == 0):
                 add_humidity(humidity2,tempurature2)
