@@ -4,6 +4,7 @@ import datetime
 import time
 import psycopg2
 import password
+import codecs
 
 def add_humidity(humidity, temp):
                 query = """                                                                            
@@ -26,24 +27,29 @@ brightness_command = "7a"
 cursor_command = "79"
 decimal_command = "77"
 cursor0 = cursor_command + "00"
-ser2.write((brightness_command + "02").decode("hex"))
+ser2.write(codecs.decode((brightness_command + "02"),"hex"))
 loopcount = 0
 while True:
 
-        line = ser.readline()
+        line = ser.readline().decode()
         humidity2 = line.split()[1].split(":")[1][0:-1]
         tempurature2 = line.split()[0].split(":")[1].strip()[0:-2]
         humi = line.split()[loopcount%2].split(":")[1]
+        print(humi[1])
+        print(humi[2])
+        print(humi[3])
+        print(humi[4])
         try:
                 ser2.write(("79000"+
                             str(humi[0])+ "0" +
                             str(humi[1])+ "0" +
                             str(humi[3])+ "0" +
-                            str(humi[4])).decode("hex"))
+                            str(humi[4])))
+                            #codecs.decode(str(humi[4]).strip(),"hex")))
                 if(loopcount%2==1):
-                        ser2.write("7710".decode("hex"))
+                        ser2.write(codecs.decode("7710","hex"))
                 else:
-                        ser2.write("7700".decode("hex"))
+                        ser2.write(codecs.decode("7700","hex"))
         except TypeError:
                 print("couldn't update display")
         loopcount += 1
