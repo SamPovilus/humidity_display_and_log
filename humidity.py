@@ -44,14 +44,15 @@ while True:
                             str(humi[0])+ "0" +
                             str(humi[1])+ "0" +
                             str(humi[3])+ "0" +
-                            str(humi[4])))
+                            str(humi[4])).encode())
                             #codecs.decode(str(humi[4]).strip(),"hex")))
                 if(loopcount%2==1):
                         ser2.write(codecs.decode("7710","hex"))
                 else:
                         ser2.write(codecs.decode("7700","hex"))
-        except TypeError:
+        except TypeError as e:
                 print("couldn't update display")
+                print(e)
         loopcount += 1
         if(loopcount % (60) == 0):
                 add_humidity(humidity2,tempurature2)
