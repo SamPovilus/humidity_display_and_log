@@ -8,19 +8,8 @@ import password
 import codecs
 from influxdb import InfluxDBClient
 
-def add_humidity(humidity, temp):
-                query = """                                                                            
-    INSERT INTO                                                                                
-        humidity_display_humidity (humidity,temp,log_date,hostname)                                                                         
-    VALUES                                                                                     
-        (%s, %s, %s, %s)                                                                           
-    """
-                values = (humidity, temp,"now","piw2")
-                cur.execute(query, values)
-                conn.commit()
+client = InfluxDBClient("nas2",8086,"climate")
 
-                
-f = open('/home/pi/temp-humidity.csv', 'a')
 ser = serial.Serial('/dev/ttyACM0',9600)
 ser2 = serial.Serial('/dev/ttyS0',9600)
 brightness_command = "7a"
@@ -59,7 +48,7 @@ while True:
                 print("couldn't update display")
                 print(e)
         loopcount += 1
-        if(loopcount % (60) == 0):
-                add_humidity(humidity2,tempurature2)
+        if(loopcount % (60) == 2):
+                client.write_points([{"measurement":"climate","tags":{"host":"pi_pressure_humidity"},"fields":{'humidity':float(humidity2),'tempurature':float(tempurature2)},"time":datetime.now()}],time_precision='s',database='climate')
 
 
