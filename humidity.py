@@ -3,12 +3,18 @@ import serial
 #import datetime
 from datetime import datetime
 import time
-import psycopg2
+#import psycopg2
 import password
 import codecs
-from influxdb import InfluxDBClient
+#from influxdb import InfluxDBClient
+from influxdb_client import InfluxDBClient, Point
+from influxdb_client.client.write_api import SYNCHRONOUS
 
-client = InfluxDBClient("nas2",8086,"climate")
+
+client = InfluxDBClient(url="http://nas:8086", token="v1hRUZ70rrNWrHV0ftKrZdD0TSoHvrWjmTEHpAjNU8Kq7XAsBNMuv-gZLS9t8gj0p6EcyxTbJIrKbTE38a-soQ==", org="povilus")
+
+write_api = client.write_api(write_options=SYNCHRONOUS)
+
 
 ser = serial.Serial('/dev/ttyACM0',9600)
 ser2 = serial.Serial('/dev/ttyS0',9600)
@@ -49,6 +55,18 @@ while True:
                 print(e)
         loopcount += 1
         if(loopcount % (60) == 2):
-                client.write_points([{"measurement":"climate","tags":{"host":"pi_pressure_humidity"},"fields":{'humidity':float(humidity2),'tempurature':float(tempurature2)},"time":datetime.now()}],time_precision='s',database='climate')
+                try:
+                        #client.write_points([{"measurement":"climate","tags":{"host":"pi_pressure_humidity"},"fields":{'humidity':float(humidity2),'tempurature':float(tempurature2)},"time":datetime.now()}],time_precision='s',database='climate')
+                        p = Point("my_measurement").tag("location", "Bedroom").field("temperature", float(tempurature2))
+                        write_api.write(bucket="my_bucket", record=p)
+                        p = Point("my_measurement").tag("location", "Bedroom").field("humidity", float(humidity2))
+                        write_api.write(bucket="my_bucket", record=p)
+
+                except Exception as inst:
+                        print(type(inst))    # the exception instance
+                        print(inst.args)     # arguments stored in .args
+                        print(inst)
+                        print("No connection to network can't log data")
+                        time.sleep(100)
 
 
